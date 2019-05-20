@@ -35,6 +35,6 @@
   },
   "homepage": "https://github.com/fekun/dc-fe-cli#readme",
   "bin": {
-    "dc": "index.js"
+    "dc": "bin/dc"
   }
 }

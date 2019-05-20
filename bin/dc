@@ -1,11 +1,11 @@
 #!/usr/bin/env node
 const program = require('commander')
 const inquirer = require('inquirer')
-const downloadRepo = require('./utils/downloadRepo')
-const install = require('./utils/install')
-const outputDoc = require('./utils/outputDoc')
-const { errInfo } = require('./config')
-const { version } = require('./package.json')
+const downloadRepo = require('../lib/downloadRepo')
+const install = require('../lib/install')
+const outputDoc = require('../lib/outputDoc')
+const { errInfo } = require('../lib/config')
+const { version } = require('../package.json')
 
 program
   .version(version, '-v, --version')
