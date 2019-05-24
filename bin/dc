@@ -6,6 +6,8 @@ const install = require('../lib/install')
 const outputDoc = require('../lib/outputDoc')
 const { errInfo } = require('../lib/config')
 const { version } = require('../package.json')
+const Exception = require('../lib/exception')
+const getRepoAddr = require('../lib/getRepoAddr')
 
 program
   .version(version, '-v, --version')
@@ -19,14 +21,14 @@ program
         name: 'repoType',
         choices: [
           {
-            name: '官网|活动页',
-            value: 'frontSite',
-            short: '官网|活动页'
+            name: '基础框架',
+            value: 'base',
+            short: '基础框架'
           },
           {
-            name: '后台系统',
-            value: 'backSite',
-            short: '后台系统'
+            name: '业务模板',
+            value: 'business',
+            short: '业务模板'
           }
         ]
       },
@@ -34,9 +36,6 @@ program
         type: 'list',
         message: '选择终端',
         name: 'terminal',
-        when (answers) {
-          return answers.repoType === 'frontSite'
-        },
         choices: [
           {
             name: 'pc端',
@@ -53,20 +52,65 @@ program
       {
         type: 'list',
         message: '选择ui模板',
-        name: 'ui',
+        name: 'name',
         when (answers) {
-          return answers.repoType === 'backSite'
+          return answers.repoType === 'base' && answers.terminal === 'pc'
         },
         choices: [
           {
-            name: 'elementUI',
-            value: 'ele',
-            short: 'elementUI'
+            name: 'Ant Design for Vue',
+            value: 'antd',
+            short: 'Ant Design for Vue'
           },
           {
-            name: 'antd',
-            value: 'antd',
-            short: 'antd'
+            name: 'ElementUI',
+            value: 'ele',
+            short: 'ElementUI'
+          }
+        ]
+      },
+      {
+        type: 'list',
+        message: '选择后台模板',
+        name: 'name',
+        when (answers) {
+          return answers.repoType === 'business' && answers.terminal === 'pc'
+        },
+        choices: [
+          {
+            name: '公司官网后台模板',
+            value: 'offical',
+            short: '公司官网后台模板'
+          },
+          {
+            name: '游戏官网后台模板',
+            value: 'game',
+            short: '游戏官网后台模板'
+          },
+          {
+            name: '运营后台模板',
+            value: 'operation',
+            short: '运营后台模板'
+          },
+          {
+            name: '发行数据后台模板',
+            value: 'plan',
+            short: '发行数据后台模板'
+          }
+        ]
+      },
+      {
+        type: 'list',
+        message: '选择后台模板',
+        name: 'name',
+        when (answers) {
+          return answers.repoType === 'business' && answers.terminal === 'h5'
+        },
+        choices: [
+          {
+            name: '发行平台后端模板',
+            value: 'plan',
+            short: '发行平台后端模板'
           }
         ]
       },
@@ -77,30 +121,30 @@ program
         default: true
       }
     ])
+
+    // ============================================
+    const repoAddr = getRepoAddr(answers)
+    console.log(getRepoAddr(answers))
+
     try {
-      if (answers.repoType === 'frontSite') {
-        if (answers.terminal === 'h5') {
-          await downloadRepo('fekun/vue-cli-project-template#master-mobile', dir)
-        } else if (answers.terminal === 'pc') {
-          throw new Error(errInfo.NOEXIST)
-        }
-      } else if (answers.repoType === 'backSite') {
-        if (answers.ui === 'ele') {
-          await downloadRepo('fekun/vue-cli-project-template#element-ui', dir)
-        } else if (answers.ui === 'antd') {
-          throw new Error(errInfo.NOEXIST)
-        }
+      if (repoAddr === '') {
+        throw new Exception({
+          msg: errInfo.NOEXIST
+        })
       }
+      await downloadRepo(repoAddr, dir)
       isCreated = true
     } catch (e) {
-      console.log(e)
-      return
+      console.error(e.msg)
+      console.error(e.info)
     }
 
     // 安装依赖
     try {
       answers.installed && isCreated && await install(dir)
     } catch (e) {
+      console.error(e.msg)
+      console.error(e.info)
       outputDoc(false, dir)
       return
     }
