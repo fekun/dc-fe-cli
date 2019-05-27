@@ -124,7 +124,7 @@ program
 
     // ============================================
     const repoAddr = getRepoAddr(answers)
-    console.log(getRepoAddr(answers))
+    console.log(repoAddr)
 
     try {
       if (repoAddr === '') {
@@ -137,6 +137,7 @@ program
     } catch (e) {
       console.error(e.msg)
       console.error(e.info)
+      return
     }
 
     // 安装依赖
